@@ -2,6 +2,7 @@ name: Weekly backup
 on:
   schedule:
     - cron: "0 0 * * 0"
+  workflow_dispatch:
 jobs:
   backup:
     runs-on: ubuntu-latest
@@ -11,6 +12,6 @@ jobs:
       - name: backup
         run: cp rrt.json ./backup/rrt-$(date '+%d-%m-%Y').json
       - uses: stefanzweifel/git-auto-commit-action@v4
-        file_pattern: ./backup/*.json
         with:
+          file_pattern: ./backup/*.json
           commit_message: weekly backup - $(date '+%d-%m-%Y')
