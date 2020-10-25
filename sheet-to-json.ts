@@ -67,7 +67,9 @@ try {
   }
   const data: LsgdType[] = [];
   const url = encodeURI(
-    "https://docs.google.com/spreadssheets/d/e/" + SHEET_ID + "/pub?output=csv"
+    "https://docs.google.com/spreadsheets/d/e/" +
+      SHEET_ID +
+      "/pub?gid=0&single=true&output=csv"
   );
   log.info(`fetching csv file from ${url}`);
   const res = await fetch(url);
