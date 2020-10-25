@@ -13,7 +13,7 @@ jobs:
         id: timestamp
         run: echo "::set-output name=timestamp::$(date '+%d-%m-%Y')"
       - name: backup
-        run: sudo chmod -R 755 ./backup && cp rrt.json ./backup/rrt-${{ steps.timestamp.outputs.timestamp }}.json
+        run: chmod -R 755 ./backup && cp rrt.json ./backup/rrt-${{ steps.timestamp.outputs.timestamp }}.json
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
           file_pattern: ./backup/*.json
