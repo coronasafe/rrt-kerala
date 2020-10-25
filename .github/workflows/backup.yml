@@ -9,9 +9,12 @@ jobs:
     timeout-minutes: 1
     steps:
       - uses: actions/checkout@v2
+      - name: get timestamp
+        id: timestamp
+        run: echo "::set-output name=timestamp::$(date '+%d-%m-%Y')"
       - name: backup
-        run: cp rrt.json ./backup/rrt-$(date '+%d-%m-%Y').json
+        run: cp rrt.json ./backup/rrt-${{ steps.timestamp.outputs.timestamp }}.json
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
           file_pattern: ./backup/*.json
-          commit_message: weekly backup - $(date '+%d-%m-%Y')
+          commit_message: weekly backup - ${{ steps.timestamp.outputs.timestamp }}

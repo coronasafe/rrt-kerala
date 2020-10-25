@@ -16,7 +16,10 @@ jobs:
           deno run --allow-all ./sheet-to-json.ts
         env:
           SHEET_ID: ${{ secrets.SHEET_ID }}
+      - name: get timestamp
+        id: timestamp
+        run: echo "::set-output name=timestamp::$(TZ=":Asia/Kolkata" date)"
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
           file_pattern: rrt.json
-          commit_message: data updated on - $(TZ=":Asia/Kolkata" date)
+          commit_message: data updated on - ${{ steps.timestamp.outputs.timestamp }}
