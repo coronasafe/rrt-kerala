@@ -69,7 +69,7 @@ type csvType = {
 };
 
 const generateLsg = (row: csvType): LsgdType => ({
-  districtName: row.districtName.replace(" District", "").trim(),
+  district: row.districtName.replace(" District", "").trim(),
   lsg: row.lsg
     .replace(`, ${row.districtName}`, "")
     .replace(" Grama Panchayat", "")
