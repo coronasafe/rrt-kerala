@@ -19,6 +19,7 @@ type WardType = {
 };
 
 enum LsgdVariant {
+  District = "District",
   Grama = "Grama",
   Block = "Block",
   Municipality = "Municipality",
@@ -72,19 +73,23 @@ const generateLsg = (row: csvType): LsgdType => ({
   district: row.districtName.replace(" District", "").trim(),
   lsg: row.lsg
     .replace(`, ${row.districtName}`, "")
+    .replace(" District Panchayat", "")
     .replace(" Grama Panchayat", "")
     .replace(" Block Panchayat", "")
     .replace(" Muncipality", "")
     .replace(" Corporation", "")
     .trim(),
   wards: [],
-  type: row.lsg.includes("Grama")
-    ? LsgdVariant.Grama
-    : row.lsg.includes("Block")
-    ? LsgdVariant.Block
-    : row.lsg.includes("Muncipality")
-    ? LsgdVariant.Municipality
-    : LsgdVariant.Corporation,
+  type:
+    (row.lsg.match(/District/g) || []).length > 1
+      ? LsgdVariant.District
+      : row.lsg.includes("Grama")
+      ? LsgdVariant.Grama
+      : row.lsg.includes("Block")
+      ? LsgdVariant.Block
+      : row.lsg.includes("Muncipality")
+      ? LsgdVariant.Municipality
+      : LsgdVariant.Corporation,
 });
 
 try {
