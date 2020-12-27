@@ -124,7 +124,7 @@ try {
   log.info(`parsed csv file successfully`);
   let current: LsgdType = generateLsg(csv[0]);
   for (const row of csv) {
-    if (row.lsg !== current.lsg && row.lsg !== "") {
+    if (!row.lsg.startsWith(current.lsg) && row.lsg !== "") {
       data.push(current);
       current = generateLsg(row);
     }
