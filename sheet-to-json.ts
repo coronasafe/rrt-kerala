@@ -18,10 +18,18 @@ type WardType = {
   anganawadiTeacher: ContactType;
 };
 
+enum LsgdVariant {
+  Grama = "Grama",
+  Block = "Block",
+  Muncipality = "Muncipality",
+  Corporation = "Corporation",
+}
+
 type LsgdType = {
   districtName: string;
   lsg: string;
   wards: WardType[];
+  type: LsgdVariant;
 };
 
 await log.setup({
@@ -60,6 +68,25 @@ type csvType = {
   anganawadiTeacherContact: string;
 };
 
+const generateLsg = (row: csvType): LsgdType => ({
+  districtName: row.districtName.replace(" District", "").trim(),
+  lsg: row.lsg
+    .replace(`, ${row.districtName}`, "")
+    .replace(" Grama Panchayat", "")
+    .replace(" Block Panchayat", "")
+    .replace(" Muncipality", "")
+    .replace(" Corporation", "")
+    .trim(),
+  wards: [],
+  type: row.lsg.includes("Grama")
+    ? LsgdVariant.Grama
+    : row.lsg.includes("Block")
+    ? LsgdVariant.Block
+    : row.lsg.includes("Muncipality")
+    ? LsgdVariant.Muncipality
+    : LsgdVariant.Corporation,
+});
+
 try {
   if (SHEET_ID === undefined) {
     log.critical("no SHEET_ID found in env");
@@ -95,19 +122,11 @@ try {
     })
   ).slice(1) as csvType[];
   log.info(`parsed csv file successfully`);
-  let current: LsgdType = {
-    wards: [],
-    districtName: csv[0].districtName,
-    lsg: csv[0].lsg,
-  };
+  let current: LsgdType = generateLsg(csv[0]);
   for (const row of csv) {
     if (row.lsg !== current.lsg && row.lsg !== "") {
       data.push(current);
-      current = {
-        districtName: row.districtName,
-        lsg: row.lsg,
-        wards: [],
-      };
+      current = generateLsg(row);
     }
     const parsedWard = parseInt(row.wardNo);
     if (!isNaN(parsedWard)) {
