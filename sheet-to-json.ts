@@ -73,7 +73,7 @@ const generateLsg = (row: csvType): LsgdType => ({
   district: row.districtName.replace(" District", "").trim(),
   lsg: row.lsg
     .replace(`, ${row.districtName}`, "")
-    .replace(" District Panchayat", "")
+    .replace(" District", "")
     .replace(" Grama Panchayat", "")
     .replace(" Block Panchayat", "")
     .replace(" Muncipality", "")
@@ -129,7 +129,10 @@ try {
   log.info(`parsed csv file successfully`);
   let current: LsgdType = generateLsg(csv[0]);
   for (const row of csv) {
-    if (!row.lsg.startsWith(current.lsg) && row.lsg !== "") {
+    if (
+      !row.lsg.startsWith(`${current.lsg} ${current.type}`) &&
+      row.lsg !== ""
+    ) {
       data.push(current);
       current = generateLsg(row);
     }
