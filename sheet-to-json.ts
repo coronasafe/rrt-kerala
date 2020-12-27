@@ -26,7 +26,7 @@ enum LsgdVariant {
 }
 
 type LsgdType = {
-  districtName: string;
+  district: string;
   lsg: string;
   wards: WardType[];
   type: LsgdVariant;
