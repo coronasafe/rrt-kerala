@@ -21,7 +21,7 @@ type WardType = {
 enum LsgdVariant {
   Grama = "Grama",
   Block = "Block",
-  Muncipality = "Muncipality",
+  Municipality = "Municipality",
   Corporation = "Corporation",
 }
 
@@ -83,7 +83,7 @@ const generateLsg = (row: csvType): LsgdType => ({
     : row.lsg.includes("Block")
     ? LsgdVariant.Block
     : row.lsg.includes("Muncipality")
-    ? LsgdVariant.Muncipality
+    ? LsgdVariant.Municipality
     : LsgdVariant.Corporation,
 });
 
