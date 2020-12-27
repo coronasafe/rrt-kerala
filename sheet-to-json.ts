@@ -4,12 +4,30 @@ import * as log from "https://deno.land/std/log/mod.ts";
 const SHEET_ID = Deno.env.get("SHEET_ID");
 const OUTPUT = "rrt.json";
 
+enum Districts {
+  Thiruvananthapuram = 1,
+  Kollam = 2,
+  Pathanamthitta = 3,
+  Alappuzha = 4,
+  Kottayam = 5,
+  Idukki = 6,
+  Ernakulam = 7,
+  Thrissur = 8,
+  Palakkad = 9,
+  Malappuram = 10,
+  Kozhikode = 11,
+  Wayanad = 12,
+  Kannur = 13,
+  Kasaragod = 14,
+}
+
 type ContactType = {
   name: string;
   contact: string;
 };
 
 type WardType = {
+  name: string;
   wardNo: number;
   medicalOfficer: ContactType;
   ashaWorker: ContactType;
@@ -67,6 +85,49 @@ type csvType = {
   kudumbaShreeContact: string;
   anganawadiTeacherName: string;
   anganawadiTeacherContact: string;
+};
+
+const titleCase = (str: string) =>
+  str
+    .toLowerCase()
+    .split(" ")
+    .map((w: string) => w.replace(w[0], w[0].toUpperCase()))
+    .join(" ");
+
+// deno-lint-ignore no-explicit-any
+const DistrictCache: Map<Districts, any> = new Map();
+
+export const getWardName = async (
+  district: string,
+  lsgName: string,
+  wardNo: number
+): Promise<string> => {
+  try {
+    const d = Districts[district as keyof typeof Districts];
+    if (!DistrictCache.has(d)) {
+      const url = encodeURI(
+        "https://careapi.coronasafe.in/api/v1/district/" +
+          d +
+          "/get_all_local_body"
+      );
+      const res = await fetch(url);
+      const lsgs = await res.json();
+      DistrictCache.set(d, lsgs);
+    }
+    const lsgs = DistrictCache.get(d);
+    const lsg = lsgs.find(({ name }: { name: string }) =>
+      name.startsWith(lsgName)
+    );
+    const ward = lsg.wards.find(
+      ({ number }: { number: number }) => number === wardNo
+    );
+    return titleCase(ward.name);
+  } catch (e) {
+    log.error(
+      `error getting wardname for district:${district} lsg:${lsgName} wardNo:${wardNo}`
+    );
+    return "";
+  }
 };
 
 const generateLsg = (row: csvType): LsgdType => ({
@@ -130,7 +191,13 @@ try {
   let current: LsgdType = generateLsg(csv[0]);
   for (const row of csv) {
     if (
-      !row.lsg.startsWith(`${current.lsg} ${current.type}`) &&
+      !row.lsg.startsWith(
+        `${current.lsg} ${
+          current.type === LsgdVariant.Municipality
+            ? "Muncipality"
+            : current.type
+        }`
+      ) &&
       row.lsg !== ""
     ) {
       data.push(current);
@@ -139,6 +206,7 @@ try {
     const parsedWard = parseInt(row.wardNo);
     if (!isNaN(parsedWard)) {
       current.wards.push({
+        name: await getWardName(current.district, current.lsg, parsedWard),
         wardNo: parsedWard,
         anganawadiTeacher: {
           name: row.anganawadiTeacherName,
