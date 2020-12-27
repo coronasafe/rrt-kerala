@@ -205,6 +205,11 @@ try {
     }
     const parsedWard = parseInt(row.wardNo);
     if (!isNaN(parsedWard)) {
+      // temporary fix for duplicate values
+      if (current.wards.findIndex((a) => a.wardNo === parsedWard) != -1) {
+        log.error(`duplicate ${row.lsg}, wardNo:${parsedWard}`);
+        continue
+      }
       current.wards.push({
         name: await getWardName(current.district, current.lsg, parsedWard),
         wardNo: parsedWard,
