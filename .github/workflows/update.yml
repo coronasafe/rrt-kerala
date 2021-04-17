@@ -20,6 +20,12 @@ jobs:
         id: timestamp
         run: echo "::set-output name=timestamp::$(TZ=":Asia/Kolkata" date)"
       - uses: stefanzweifel/git-auto-commit-action@v4
+        id: auto-commit-action
         with:
           file_pattern: rrt.json
           commit_message: data updated on - ${{ steps.timestamp.outputs.timestamp }}
+      - name: build site
+        if: steps.auto-commit-action.outputs.changes_detected == 'true'
+        run: curl -X POST -d {} "https://api.netlify.com/build_hooks/$NETLIFY_ID" && echo "changes detected, deploying site"
+        env:
+          NETLIFY_ID: ${{ secrets.NETLIFY_ID }}
