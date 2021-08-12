@@ -1,4 +1,4 @@
-import { parse } from "https://deno.land/std@0.74.0/encoding/csv.ts";
+import { parse } from "https://deno.land/std/encoding/csv.ts";
 import * as log from "https://deno.land/std/log/mod.ts";
 
 const SHEET_ID = Deno.env.get("SHEET_ID");
